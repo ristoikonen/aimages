@@ -1,5 +1,9 @@
 ﻿using aimages.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.OpenApi.Extensions;
 using System.IO;
+using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace aimages
 {
@@ -21,31 +25,72 @@ namespace aimages
             List<AImage> list = new List<AImage>();
             string desc = "";
 
-            foreach (var filename in Directory.GetFiles(pathToFiles))
+            foreach (var fileNameAndPath in Directory.GetFiles(pathToFiles))
             {
-                string subdirForTexFiles = Directory.GetDirectories(pathToFiles, PathToSubDirImageTextFiles).FirstOrDefault<string>() ?? "";
-                // any filetype, root
-                //var filenames = Directory.GetFiles(pathToFiles, "*", SearchOption.AllDirectories).Select(x => Path.GetFileName(x)).ToArray();
-
-                //foreach (var textfilename in filenames)
-                //{
-                // any filetype, subdir
-                //var textfile = System.IO.Directory.GetFiles(subdirForTexFiles, textfilename + ".*", System.IO.SearchOption.AllDirectories).FirstOrDefault<string>() ?? "";
-
-                var textfile = Path.Combine(subdirForTexFiles, Path.GetFileNameWithoutExtension(filename) + TXT_EXT );
-
-                //var textfile = System.IO.Directory.GetFiles(subdirForTexFiles, textfilename + ".*", System.IO.SearchOption.AllDirectories).FirstOrDefault<string>() ?? "";
-
-                if (File.Exists(textfile))
-                    {
-                        // Console.WriteLine("Reading:" + textfile);
-                        desc = File.ReadAllText(textfile) ?? "";
+                if (File.Exists(fileNameAndPath))
+                {
+                    string subdirForTexFiles = Directory.GetDirectories(pathToFiles, PathToSubDirImageTextFiles).FirstOrDefault<string>() ?? "";
+                    if (Path.Exists(subdirForTexFiles))
+                    { 
+                        var textfile = Path.Combine(subdirForTexFiles, Path.GetFileNameWithoutExtension(fileNameAndPath) + TXT_EXT);
+                        if (File.Exists(textfile))
+                        {
+                            desc = File.ReadAllText(textfile) ?? "";
+                        }
                     }
-                //}
-                list.Add(new AImage(Path.GetFileName(filename) ?? "", filename, desc));
+
+                    AImage aimg = new AImage(Path.GetFileName(fileNameAndPath) ?? "", fileNameAndPath, desc, System.IO.File.ReadAllBytes(fileNameAndPath));
+                    list.Add(aimg);
+                }
             }
             return list;
 
         }
+
+        public string GetImageAsBase64(string pathToImage)
+        {
+            byte[] imageArray = System.IO.File.ReadAllBytes(pathToImage);
+            return Convert.ToBase64String(imageArray);
+            //var img = Image.FromStream(new MemoryStream(Convert.FromBase64String(base64String)));
+            //Encoding.ASCII.GetBytes(Convert.ToBase64String(File.ReadAllBytes(pathToImage)));
+        }
+
+
+        public static List<AImage> GetImages(string pathToImages)
+        {
+            List<string> images = new List<string>();
+            List<AImage> aimages = new List<AImage>();
+
+            foreach (string file in Directory.GetFiles(pathToImages))
+            {
+                // Path.GetFileName(
+                //if (file.EndsWith(".jpg") || file.EndsWith(".png") || file.EndsWith(".jpeg"))
+                var filenamewithpath = Path.GetFileName(pathToImages) + @"\" + file;
+
+                AImage aimage = new AImage(file, filenamewithpath , "", System.IO.File.ReadAllBytes(filenamewithpath));
+                aimages.Add(aimage);
+            }
+            return aimages;
+        }
+        
+
+        public static List<AImage> GetImagesOld(string path)
+        {
+            List<string> images = new List<string>();
+            List<AImage> aimages = new List<AImage>();
+
+            string[] files = Directory.GetFiles(path);
+            foreach (string file in files)
+            {
+                // Path.GetFileName(
+                //if (file.EndsWith(".jpg") || file.EndsWith(".png") || file.EndsWith(".jpeg"))
+
+                AImage aimage = new AImage(Path.GetFileName(file), file);
+                aimages.Add(aimage);
+            }
+            return aimages;
+        }
+
+
     }
 }

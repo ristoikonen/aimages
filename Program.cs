@@ -74,8 +74,6 @@ imagesGroup.MapGet("names", GetAImages)
         return operation;
     });
 
-// (int? pageNumber) => $"Requesting page {pageNumber ?? 1}
-
 
 imagesGroup.MapGet("search/{desc}", SearchByDesc)
     .WithName("SearchByDesc")
@@ -86,45 +84,12 @@ imagesGroup.MapGet("search/{desc}", SearchByDesc)
         return operation;
     });
 
-imagesGroup.MapGet("id/{desc}", (  [FromQuery(Name = "desc")] string desc )
-                     => { return "ABC"; });
-
-
-//imagesGroup.MapGet("search/{desc}", ([FromQuery(Name = "desc")] string desc)
-//                     => { return "ABC"; });
-
-
-//imagesGroup.MapGet("images/{desc}", SearchByDesc)
-//    .WithName("SearchByDesc")
-//    .WithOpenApi(operation =>
-//    {
-//        operation.Summary = "Search for image(s)";
-//        operation.Description = "Search of text in images Desc -field";
-//        return operation;
-//    });
-//imagesGroup.MapGet(string.Empty, SearchByDesc)
-//    .WithName("SearchByDesc")
-//    .WithOpenApi(operation =>
-//    {
-//        operation.Summary = "Search for image(s)";
-//        operation.Description = "Search of text in images Desc -field";
-//        return operation;
-//    });
-
-
-/*
-app.MapGet("/images", () =>
-{
-    var imagelist = aimages.DirAnalyser.GetImages(pathToImages);
-    return imagelist;
-})
-.WithName("GetImages");
-*/
 
 
 List<AImage> GetAImageDetails()
 {
-    return new List<AImage>(aimages.DirAnalyser.GetImages(pathToImages));
+    ImageFileVisitor visitor = new ImageFileVisitor(pathToImages, "Descriptions");
+    return new List<AImage>(visitor.ReadDirectory(pathToImages));
 
 }
 
