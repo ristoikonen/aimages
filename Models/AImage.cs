@@ -1,5 +1,7 @@
 ﻿using System.Drawing;
 using System.Runtime.Versioning;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Xml.Linq;
 
 namespace aimages.Models
 {
@@ -13,24 +15,12 @@ namespace aimages.Models
 
         public byte[] Data { get; set; }
 
-        public AImage()
-        {
-
-        }
-
-        public AImage(string name, string fileName)
-        {
-            this.Name = name;
-            this.FileName = fileName;
-            this.Desc = GetDesc(fileName);
-        }
-
-        public AImage(string name, string fileName, string desc)
-        {
-            this.Name = name;
-            this.FileName = fileName;
-            this.Desc = GetDesc(fileName);
-        }
+        //public AImage(string name, string fileName, string desc)
+        //{
+        //    this.Name = name;
+        //    this.FileName = fileName;
+        //    this.Desc = GetDesc(fileName);
+        //}
 
         public AImage(string name, string fileName, string desc, byte[] data)
         {
@@ -38,7 +28,6 @@ namespace aimages.Models
             this.FileName = fileName;
             this.Desc = GetDesc(fileName);
             this.Data = data;
-
         }
 
 
@@ -60,12 +49,9 @@ namespace aimages.Models
             {
                 return "";
             }
-
             var descdir = directoryName + @"\" + DESC_DIR;
             var descfile = Path.Combine(descdir, Path.GetFileNameWithoutExtension(fileName)) + @".txt";
-
             var descpath = Path.Combine(descdir, descfile);
-
             if (File.Exists(descpath))
                 return File.ReadAllText(descpath);
             else
